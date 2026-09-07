@@ -76,9 +76,9 @@ A GitHub Actions workflow (`.github/workflows/build-apk.yml`) builds the APK on
 GitHub's runners. The simplest way to grab a ready-to-install build is the
 **GitHub Release**:
 
-- **Latest release:** <https://github.com/maryatta8200-ops/Lmarena2/releases/tag/v1.0.0>
-- **`app-debug.apk`** (installable): <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.0.0/app-debug.apk>
-- **`app-release-unsigned.apk`**: <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.0.0/app-release-unsigned.apk>
+- **Latest release:** <https://github.com/maryatta8200-ops/Lmarena2/releases/tag/v1.1.0>
+- **`app-debug.apk`** (installable): <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.1.0/app-debug.apk>
+- **`app-release-unsigned.apk`**: <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.1.0/app-release-unsigned.apk>
 
 You can also download the **`lmarena-agent-apk`** artifact from any workflow run's
 **Artifacts** section (e.g. after a push or a manual **Run workflow** dispatch):

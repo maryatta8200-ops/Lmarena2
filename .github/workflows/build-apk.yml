@@ -38,7 +38,6 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        id: debugbuild
         run: ./gradlew assembleDebug --stacktrace --console=plain
 
       # --- Play Store release signing (only when secrets are configured) ---
@@ -89,31 +88,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          gh release delete v1.0.0 --yes 2>/dev/null || true
+          # Use the pushed tag for the release, or a default for manual runs.
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG="$GITHUB_REF_NAME"
+          else
+            TAG="v1.0.0"
+          fi
+          gh release delete "$TAG" --yes 2>/dev/null || true
           files=""
           # Prefer signed release APK; if none, fall back to debug.
           for f in app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk; do
             [ -e "$f" ] && files="$files $f"
           done
-          gh release create v1.0.0 \
-            --title "LM Arena Agent v1.0.0" \
+          gh release create "$TAG" \
+            --title "LM Arena Agent $TAG" \
             --notes "Android APK generated automatically by GitHub Actions. See the README for how to point the app at your LMArena backend." \
             $files
-
-      # --- Diagnostics: surface build errors via a release (readable via API) ---
-      - name: Report build failure
-        if: failure() && steps.debugbuild.outcome == 'failure'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set +e
-          ./gradlew assembleDebug --stacktrace --console=plain > /tmp/build.log 2>&1 || true
-          gh release delete ci-error --yes 2>/dev/null || true
-          gh release create ci-error \
-            --title "CI build error (run $GITHUB_RUN_ID)" \
-            -F /tmp/build.log \
-            --prerelease 2>/dev/null || true
 
       - name: Summarize
         if: always()
