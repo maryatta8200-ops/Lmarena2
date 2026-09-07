@@ -33,13 +33,42 @@ On the chat screen you pick a **model** from the list the backend returns.
 ## Features
 
 - Streaming chat (SSE) with an agent-style, task-oriented input box.
-- Per-message markdown text with automatic scrolling.
+- **Markdown rendering** for assistant messages (headings, lists, code blocks, block
+  quotes, horizontal rules, bold/italic, inline code, strikethrough, hyperlinks).
+- **Deep links** to pre-configure the app, e.g.
+  `lmarena-agent://configure?baseUrl=https%3A%2F%2Fmy-bridge%2Fv1&model=claude-3-5-sonnet&persona=Coder&temperature=0.5`.
+  Supported keys: `baseUrl`, `apiKey`, `model`, `persona`, `temperature`.
 - Model picker (populated from `/v1/models`) + manual refresh.
 - Agent personas / system prompts (Assistant, Coder, Analyst, Writer).
 - Settings screen to configure the LMArena backend, key, temperature, agent mode.
 - Dark/light theme with dynamic color on Android 12+.
+- **Play Store ready**: release signing from CI secrets (see below).
 
 ---
+
+## Play Store release signing
+
+Release builds are signed **only when** these repository **secrets** are set in
+Settings → Secrets and variables → Actions:
+
+| Secret | Purpose |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | `base64` of your upload keystore (`.jks`/`.keystore`) |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias |
+| `ANDROID_KEY_PASSWORD` | Key password |
+
+To generate an upload keystore:
+
+```bash
+keytool -genkeypair -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias upload -storepass YOURPASS -keypass YOURPASS -dname "CN=LM Arena Agent,OU=Dev,O=Arena,L=City,C=US"
+base64 -w 0 upload-keystore.jks   # paste into ANDROID_KEYSTORE_BASE64
+```
+
+When the secrets are present, CI produces a **signed release APK**; otherwise it
+builds an unsigned one. The release build also reads a `keystore.properties`
+file (or `ANDROID_KEYSTORE_FILE` env var) for local builds.
 
 ## Getting the APK
 

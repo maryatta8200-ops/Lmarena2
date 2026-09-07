@@ -38,9 +38,39 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
+        id: debugbuild
         run: ./gradlew assembleDebug --stacktrace --console=plain
 
-      - name: Build release APK (unsigned)
+      # --- Play Store release signing (only when secrets are configured) ---
+      - name: Configure release signing
+        id: sign
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > release.keystore
+            echo "ANDROID_KEYSTORE_FILE=${{ github.workspace }}/release.keystore" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "Release signing configured with alias '$KEY_ALIAS'."
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "No signing secrets found — release APK will be unsigned."
+          fi
+
+      - name: Build signed release APK
+        if: steps.sign.outputs.signed == 'true'
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ github.workspace }}/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --stacktrace --console=plain
+
+      - name: Build unsigned release APK (fallback)
+        if: steps.sign.outputs.signed == 'false'
         run: ./gradlew assembleRelease --stacktrace --console=plain || true
 
       - name: Upload APK artifacts
@@ -60,11 +90,34 @@ jobs:
         run: |
           set -e
           gh release delete v1.0.0 --yes 2>/dev/null || true
+          files=""
+          # Prefer signed release APK; if none, fall back to debug.
+          for f in app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk; do
+            [ -e "$f" ] && files="$files $f"
+          done
           gh release create v1.0.0 \
             --title "LM Arena Agent v1.0.0" \
             --notes "Android APK generated automatically by GitHub Actions. See the README for how to point the app at your LMArena backend." \
-            app/build/outputs/apk/debug/*.apk \
-            app/build/outputs/apk/release/*.apk
+            $files
+
+      # --- Diagnostics: surface build errors as a GitHub issue (temporary) ---
+      - name: Report build failure
+        if: failure() && steps.debugbuild.outcome == 'failure'
+        shell: bash
+        run: |
+          set +e
+          ./gradlew assembleDebug --stacktrace --console=plain > /tmp/build.log 2>&1 || true
+          {
+            echo '### APK build failed'
+            echo ''
+            echo '```text'
+            tail -n 500 /tmp/build.log
+            echo '```'
+          } > /tmp/issue.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "ci: APK build failure (run $GITHUB_RUN_ID)" \
+            --body-file /tmp/issue.md > /tmp/issue_url.txt 2>/tmp/issue_err.txt || true
 
       - name: Summarize
         if: always()

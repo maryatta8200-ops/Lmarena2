@@ -147,6 +147,50 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
         _uiState.value = _uiState.value.copy(showSettings = !_uiState.value.showSettings)
     }
 
+    /**
+     * Applies a deep link like
+     * `lmarena-agent://configure?baseUrl=https%3A%2F%2F...&model=claude-3-5-sonnet&persona=Coder&temperature=0.5`.
+     * Matching values are applied to the settings; unknown keys are ignored.
+     */
+    fun applyDeepLink(uri: android.net.Uri?) {
+        if (uri == null) return
+        val s = _uiState.value.settings
+        var base = s.baseUrl
+        var apiKey = s.apiKey
+        var model = s.model
+        var persona = s.persona
+        var temperature = s.temperature
+        var change = false
+
+        uri.getQueryParameter("baseUrl")?.let {
+            if (it.isNotBlank()) { base = it; change = true }
+        }
+        uri.getQueryParameter("apiKey")?.let {
+            if (it.isNotBlank()) { apiKey = it; change = true }
+        }
+        uri.getQueryParameter("model")?.let {
+            if (it.isNotBlank()) { model = it; change = true }
+        }
+        uri.getQueryParameter("persona")?.let {
+            // Resolve the named persona to its full system prompt.
+            SettingsStore.AGENT_MODES.firstOrNull { (name, _) -> name.equals(it, ignoreCase = true) }
+                ?.second?.let { full -> persona = full; change = true }
+                ?: if (it.isNotBlank()) { persona = it; change = true }
+        }
+        uri.getQueryParameter("temperature")?.let {
+            it.toDoubleOrNull()?.let { d -> temperature = d; change = true }
+        }
+
+        if (change) {
+            _uiState.value = _uiState.value.copy(
+                settings = s.copy(baseUrl = base, apiKey = apiKey, model = model, persona = persona, temperature = temperature),
+                showSettings = false
+            )
+            persistSettings()
+            refreshModels()
+        }
+    }
+
     private fun persistSettings() {
         store.save(_uiState.value.settings)
     }

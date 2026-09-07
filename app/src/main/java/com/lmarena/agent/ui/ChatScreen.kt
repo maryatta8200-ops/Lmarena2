@@ -257,11 +257,19 @@ private fun MessageBubble(message: ChatMessage, streaming: Boolean) {
             ),
             modifier = Modifier.fillMaxWidth(0.85f)
         ) {
-            Text(
-                text = if (message.content.isBlank() && streaming) "…" else message.content,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(12.dp)
-            )
+            if (message.content.isBlank() && streaming) {
+                Text(
+                    text = "…",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(12.dp)
+                )
+            } else {
+                MarkdownText(
+                    text = message.content,
+                    userMessage = isUser,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
     }
 }
