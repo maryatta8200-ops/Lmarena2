@@ -171,11 +171,15 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
         uri.getQueryParameter("model")?.let {
             if (it.isNotBlank()) { model = it; change = true }
         }
-        uri.getQueryParameter("persona")?.let {
-            // Resolve the named persona to its full system prompt.
-            SettingsStore.AGENT_MODES.firstOrNull { (name, _) -> name.equals(it, ignoreCase = true) }
-                ?.second?.let { full -> persona = full; change = true }
-                ?: if (it.isNotBlank()) { persona = it; change = true }
+        uri.getQueryParameter("persona")?.let { p ->
+            // Resolve a named persona to its full system prompt, or allow a custom prompt.
+            if (p.isNotBlank()) {
+                val named = SettingsStore.AGENT_MODES
+                    .firstOrNull { (name, _) -> name.equals(p, ignoreCase = true) }
+                    ?.second
+                persona = named ?: p
+                change = true
+            }
         }
         uri.getQueryParameter("temperature")?.let {
             it.toDoubleOrNull()?.let { d -> temperature = d; change = true }
