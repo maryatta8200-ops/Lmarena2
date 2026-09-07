@@ -4,7 +4,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySend
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import okhttp3.MediaType.Companion.toMediaType
@@ -72,11 +71,13 @@ class LmArenaApi {
         systemPrompt: String,
         temperature: Double
     ): Flow<String> = callbackFlow {
+        val channel = this // ProducerScope<String>: provides trySend / close
+
         val url = normalizeBase(baseUrl) + "/chat/completions"
         val body = buildRequestBody(model, messages, systemPrompt, temperature)
         val requestBuilder = Request.Builder()
             .url(url)
-            .post(body.toRequestBody(jsonMediaType))
+            .post(body.toString().toRequestBody(jsonMediaType))
             .header("Accept", "text/event-stream")
         if (apiKey.isNotBlank()) {
             requestBuilder.header("Authorization", "Bearer $apiKey")
@@ -85,16 +86,16 @@ class LmArenaApi {
         val listener = object : EventSourceListener() {
             override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
                 val delta = extractContent(data)
-                if (delta != null && delta.isNotEmpty()) trySend(delta)
+                if (delta != null && delta.isNotEmpty()) channel.trySend(delta)
             }
 
             override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {
                 val msg = response?.let { "HTTP ${it.code}" } ?: (t?.message ?: "Connection failed")
-                close(IOException(msg))
+                channel.close(IOException(msg))
             }
 
             override fun onClosed(eventSource: EventSource) {
-                close()
+                channel.close()
             }
         }
 
