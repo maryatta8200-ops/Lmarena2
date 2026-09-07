@@ -236,7 +236,7 @@ private fun InputBar(vm: ChatViewModel, state: UiState) {
 @Composable
 private fun MessageBubble(message: ChatMessage, streaming: Boolean) {
     val isUser = message.role == "user"
-    val alignment: Alignment.Horizontal = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
+    val alignment: Alignment.Horizontal = if (isUser) Alignment.End else Alignment.Start
     val background = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val contentColor = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
