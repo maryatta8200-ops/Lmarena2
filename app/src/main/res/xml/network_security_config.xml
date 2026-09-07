@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- LMArena bridge endpoints may be hosted over plain HTTP (e.g. a self-hosted proxy
+         on your LAN). Permitting cleartext keeps those working while HTTPS remains untouched. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
