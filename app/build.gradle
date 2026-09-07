@@ -1,0 +1,110 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// Release signing: reads from environment variables / keystore properties.
+// If you set KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD the
+// build will produce a signed release APK. Otherwise it falls back to unsigned.
+def keystoreFile = System.getenv("ANDROID_KEYSTORE_FILE")
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def hasKeystoreProps = keystorePropertiesFile.exists()
+def releaseStoreFile = keystoreFile ?: (hasKeystoreProps ? keystorePropertiesFile.toString() : null)
+
+def keystoreProps = new Properties()
+if (hasKeystoreProps) {
+    keystorePropertiesFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace 'com.lmarena.agent'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.lmarena.agent"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    signingConfigs {
+        release {
+            def storeFile = releaseStoreFile ?: (keystoreProps.getProperty('storeFile') ?: '')
+            def storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: keystoreProps.getProperty('storePassword') ?: ''
+            def keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: keystoreProps.getProperty('keyAlias') ?: ''
+            def keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: keystoreProps.getProperty('keyPassword') ?: ''
+            if (storeFile && storeFile != '') {
+                storeFile file(storeFile)
+                storePassword storePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Debug is always auto-signed with the generated debug keystore.
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Sign if credentials are configured; otherwise build unsigned.
+            if (releaseStoreFile || (hasKeystoreProps && keystoreProps.getProperty('storeFile'))) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.14'
+    }
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.0'
+    implementation 'androidx.activity:activity-compose:1.9.0'
+
+    // Compose
+    def composeBom = platform('androidx.compose:compose-bom:2024.06.00')
+    implementation composeBom
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-graphics'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.8.0'
+
+    // Networking / streaming
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:okhttp-sse:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+}

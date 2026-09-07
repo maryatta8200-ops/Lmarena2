@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. The actual colors are driven by Compose MaterialTheme. -->
+    <style name="Theme.LmArenaAgent" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/ic_launcher_background</item>
+        <item name="android:navigationBarColor">@color/ic_launcher_background</item>
+    </style>
+</resources>
