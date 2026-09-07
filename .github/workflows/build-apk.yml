@@ -100,24 +100,20 @@ jobs:
             --notes "Android APK generated automatically by GitHub Actions. See the README for how to point the app at your LMArena backend." \
             $files
 
-      # --- Diagnostics: surface build errors as a GitHub issue (temporary) ---
+      # --- Diagnostics: surface build errors via a release (readable via API) ---
       - name: Report build failure
         if: failure() && steps.debugbuild.outcome == 'failure'
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set +e
           ./gradlew assembleDebug --stacktrace --console=plain > /tmp/build.log 2>&1 || true
-          {
-            echo '### APK build failed'
-            echo ''
-            echo '```text'
-            tail -n 500 /tmp/build.log
-            echo '```'
-          } > /tmp/issue.md
-          gh issue create \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "ci: APK build failure (run $GITHUB_RUN_ID)" \
-            --body-file /tmp/issue.md > /tmp/issue_url.txt 2>/tmp/issue_err.txt || true
+          gh release delete ci-error --yes 2>/dev/null || true
+          gh release create ci-error \
+            --title "CI build error (run $GITHUB_RUN_ID)" \
+            -F /tmp/build.log \
+            --prerelease 2>/dev/null || true
 
       - name: Summarize
         if: always()
