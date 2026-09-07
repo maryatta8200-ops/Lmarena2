@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
 
 jobs:
   build:
@@ -39,7 +38,6 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        id: build
         run: ./gradlew assembleDebug --stacktrace --console=plain
 
       - name: Build release APK (unsigned)
@@ -55,7 +53,6 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # --- Publish a GitHub Release so the APK has a stable download link. ---
       - name: Publish GitHub Release (manual / tag)
         if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         env:
@@ -68,29 +65,6 @@ jobs:
             --notes "Android APK generated automatically by GitHub Actions. See the README for how to point the app at your LMArena backend." \
             app/build/outputs/apk/debug/*.apk \
             app/build/outputs/apk/release/*.apk
-          echo "release created"
-
-      # --- Diagnostics: if the build failed, create a GitHub issue with the tail of the
-      # log so the authoring agent (which cannot reach the Azure-hosted logs) can see the error.
-      - name: Report build failure
-        if: failure() && steps.build.outcome == 'failure'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set +e
-          ./gradlew assembleDebug --stacktrace --console=plain > /tmp/build.log 2>&1 || true
-          {
-            echo '### APK build failed'
-            echo ''
-            echo '```text'
-            tail -n 500 /tmp/build.log
-            echo '```'
-          } > /tmp/issue.md
-          gh issue create \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "ci: APK build failure (run $GITHUB_RUN_ID)" \
-            --body-file /tmp/issue.md > /tmp/issue_url.txt 2>/tmp/issue_err.txt || true
 
       - name: Summarize
         if: always()
@@ -99,5 +73,5 @@ jobs:
             echo "### APK built ✔" >> "$GITHUB_STEP_SUMMARY"
             echo "Download it from the artifacts section of this workflow run." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### APK not produced — see diagnostics above." >> "$GITHUB_STEP_SUMMARY"
+            echo "### APK not produced — see the build log above." >> "$GITHUB_STEP_SUMMARY"
           fi

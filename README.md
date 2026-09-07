@@ -44,15 +44,23 @@ On the chat screen you pick a **model** from the list the backend returns.
 ## Getting the APK
 
 A GitHub Actions workflow (`.github/workflows/build-apk.yml`) builds the APK on
-GitHub's runners. After a push (or a manual **Run workflow** dispatch), download
-the artifact named **`lmarena-agent-apk`** from the workflow run's **Artifacts**
-section:
+GitHub's runners. The simplest way to grab a ready-to-install build is the
+**GitHub Release**:
+
+- **Latest release:** <https://github.com/maryatta8200-ops/Lmarena2/releases/tag/v1.0.0>
+- **`app-debug.apk`** (installable): <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.0.0/app-debug.apk>
+- **`app-release-unsigned.apk`**: <https://github.com/maryatta8200-ops/Lmarena2/releases/download/v1.0.0/app-release-unsigned.apk>
+
+You can also download the **`lmarena-agent-apk`** artifact from any workflow run's
+**Artifacts** section (e.g. after a push or a manual **Run workflow** dispatch):
 
 - `app/build/outputs/apk/debug/app-debug.apk` — debug build (installable).
 - `app/build/outputs/apk/release/app-release-unsigned.apk` — unsigned release.
 
 > Note: the sandbox used to author this project cannot reach the Android SDK /
-> Maven / Gradle mirrors, so the APK is compiled in CI rather than locally.
+> Maven / Gradle mirrors, so the APK is compiled in CI rather than locally. Once
+> built it is published to the Actions artifact and (on manual/tag runs) to a
+> GitHub Release.
 
 ---
 
