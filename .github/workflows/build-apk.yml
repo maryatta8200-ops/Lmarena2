@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -55,8 +55,23 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # --- Diagnostics: if the build failed, create a GitHub issue with the tail of the log
-      # so the authoring agent (which cannot reach the Azure-hosted logs) can see the error.
+      # --- Publish a GitHub Release so the APK has a stable download link. ---
+      - name: Publish GitHub Release (manual / tag)
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          gh release delete v1.0.0 --yes 2>/dev/null || true
+          gh release create v1.0.0 \
+            --title "LM Arena Agent v1.0.0" \
+            --notes "Android APK generated automatically by GitHub Actions. See the README for how to point the app at your LMArena backend." \
+            app/build/outputs/apk/debug/*.apk \
+            app/build/outputs/apk/release/*.apk
+          echo "release created"
+
+      # --- Diagnostics: if the build failed, create a GitHub issue with the tail of the
+      # log so the authoring agent (which cannot reach the Azure-hosted logs) can see the error.
       - name: Report build failure
         if: failure() && steps.build.outcome == 'failure'
         shell: bash
@@ -64,8 +79,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set +e
-          # Re-run the failing command to capture output, since the log console isn't
-          # available to the authoring agent.
           ./gradlew assembleDebug --stacktrace --console=plain > /tmp/build.log 2>&1 || true
           {
             echo '### APK build failed'
@@ -78,7 +91,6 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "ci: APK build failure (run $GITHUB_RUN_ID)" \
             --body-file /tmp/issue.md > /tmp/issue_url.txt 2>/tmp/issue_err.txt || true
-          echo "issue_url=$(cat /tmp/issue_url.txt 2>/dev/null)"
 
       - name: Summarize
         if: always()
