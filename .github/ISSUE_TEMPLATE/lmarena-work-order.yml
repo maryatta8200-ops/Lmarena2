@@ -1,0 +1,118 @@
+name: LMArena automated-work order
+description: Request bounded, reviewable agent work. Does not authorize a merge or a stage decision.
+title: "[LMArena] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Review-gated automated work
+
+        This form creates a bounded work order for an LMArena/LMarena coding agent. Filing it does
+        **not** authorize a merge, a phase or stage decision, a schema change, a dependency change,
+        a benchmark claim, or a security-posture change.
+
+        The agent must follow [`AGENTS.md`](../../AGENTS.md) and
+        [`docs/automation/lmarena-agent.md`](../../docs/automation/lmarena-agent.md).
+
+        > **Governance notice.** This repository does not currently contain a master plan, a
+        > decision log, a documented project phase, or a stage gate. Where a field below asks for
+        > plan or gate traceability and no such record exists, say so explicitly. Do not ask the
+        > agent to invent one, and do not expect it to proceed on an invented gate.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective and bounded deliverable
+      description: State the smallest useful outcome, the affected files/modules, and what is explicitly out of scope.
+      placeholder: |
+        Objective:
+        Affected files/modules:
+        Deliverable (file, doc, patch, or report):
+        Out of scope:
+    validations:
+      required: true
+
+  - type: textarea
+    id: plan_trace
+    attributes:
+      label: Plan, decision, and gate traceability
+      description: Cite exact documents and sections that authorize this work. If the repository has no master plan or decision log, write "none exists" and cite the maintainer instruction instead.
+      placeholder: |
+        Controlling document(s) and section(s):
+        Applicable specification/schema/artifact contract:
+        Current decision record or gate:
+        Maintainer instruction authorizing this task (link or quote):
+        Why this work is allowed now:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage_impact
+    attributes:
+      label: Stage impact
+      description: The agent re-verifies the live state from the repository tree before acting, and will stop if this classification is inconsistent with it.
+      options:
+        - No stage impact — maintenance, audit, reproduction, or documentation
+        - Compatible correction within already-accepted behavior
+        - Draft or proposal only — no implementation, no decision recorded
+        - Proposed change to a phase, gate, schema, dependency, or published artifact — authorization attached below
+        - Unsure — request maintainer clarification before any work starts
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Inputs, outputs, acceptance criteria, and tests
+      description: Define the contract and the measurable proof of completion. Name the exact commands to run, and note which are unavailable in this repository today.
+      placeholder: |
+        Inputs:
+        Outputs:
+        Acceptance criteria (measurable):
+        Tests/checks to run (exact commands):
+        Checks known to be unavailable and why:
+        Known limitations to preserve or document:
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety_rollback
+    attributes:
+      label: Security, privacy, data, cost, and rollback constraints
+      description: Identify credential/secret handling, personal or sensitive data, network exposure, artifact compatibility, compute cost, and how to back the change out.
+      placeholder: |
+        Secrets/credentials involved (should be none — state how they stay out):
+        Personal or sensitive data involved:
+        Security/network-exposure constraints (TLS, cleartext, permissions, exported components):
+        Artifact and release compatibility constraints:
+        Expected compute or CI cost:
+        Rollback path:
+    validations:
+      required: true
+
+  - type: textarea
+    id: authorization
+    attributes:
+      label: Explicit maintainer authorization
+      description: Required when a gate, schema, dependency, benchmark, dataset, secret-handling path, network exposure, published artifact, or compatibility contract is affected. Write "not needed" only for routine scoped maintenance.
+      placeholder: |
+        Authorization required? (yes/no)
+        Authorizing maintainer and decision reference:
+        Files/records this authorization permits the agent to change:
+        Conditions or expiry on this authorization:
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: The agent must stop and ask when authorization, acceptance criteria, or plan/gate traceability is missing — it must not invent a phase, gate, or decision.
+          required: true
+        - label: The agent must not push to main, auto-merge, force-push, rewrite history, disable or weaken CI, or handle secrets, tokens, keystores, or personal data.
+          required: true
+        - label: The agent must not add a scheduler, webhook, self-invoking runner, or browser automation unless separately requested and reviewed.
+          required: true
+        - label: I will review the evidence myself, and final merge and stage-decision authority remains with a maintainer.
+          required: true
