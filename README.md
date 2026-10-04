@@ -16,7 +16,7 @@ Relay is a native Android messaging app prototype built around a familiar, clean
 
 - Android Studio / Android SDK platform 35, JDK 17, and Gradle 8.9.
 - Minimum Android version: 8.0 (API 26).
-- Open the repository in Android Studio, sync Gradle, then run `:app:assembleDebug`. If using a shell with Gradle installed, run `gradle testDebugUnitTest lint assembleDebug`.
+- Open the repository in Android Studio and sync the Gradle wrapper, or run `./gradlew testDebugUnitTest lint assembleDebug`. The wrapper pins Gradle 8.9 and verifies the downloaded distribution with its SHA-256 checksum.
 - The GitHub Actions workflow runs unit tests, lint, and a debug APK build, then uploads the APK as a short-lived artifact.
 
 To send and receive SMS, the user must choose Relay as the default SMS app and grant the requested Android runtime permissions. The app never changes the system default silently. Android/SIM/carrier support and account/SMS charges still apply. No call-log, microphone, camera, location, or internet permission is requested.

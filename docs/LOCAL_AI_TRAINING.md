@@ -26,7 +26,7 @@ Choose a `.json` file in the **Local AI** tab. The root object must be version 1
 }
 ```
 
-Constraints: up to 5,000 examples per import; intent 1–64 characters; input 1–500 characters; reply 1–320 characters; JSON file up to 5 MiB. Empty values, malformed JSON, overlong fields, and unsupported versions are rejected. Examples are added to the local training table; importing does not replace your whole dataset.
+Constraints: up to 5,000 examples per import and 10,000 stored examples total; intent 1–64 characters; input 1–500 characters; reply 1–320 characters; JSON file up to 5 MiB. Empty values, malformed JSON, overlong fields, and unsupported versions are rejected. Examples are added to the local training table; importing does not replace your whole dataset.
 
 ## SQLite format
 
@@ -48,7 +48,7 @@ The import is opened read-only, limited to 5,000 accepted rows and 20 MiB, and c
 2. Import the file in **Local AI**. Check the accepted-example count and try several expected messages in the suggestion preview.
 3. Add a number in **Numbers**, choose a category, profession, and purpose, then explicitly enable auto-reply for that number if appropriate.
 4. Enable the global auto-reply switch only after Relay is the default SMS app and all required Android permissions are granted.
-5. Test on a non-sensitive conversation first. The engine abstains if the best local example is not a sufficiently strong match. Keep auto-reply off if suggestions are not suitable.
+5. Test on a non-sensitive conversation first. The auto-send path requires a local score of at least 0.78 (the score is a similarity heuristic, not a calibrated probability) and abstains on weak matches. Keep auto-reply off if suggestions are not suitable.
 6. To stop replies immediately, turn off the global switch or the individual number switch. To remove a training example, clear the local training data in the AI tab.
 
 ## Data and limitations

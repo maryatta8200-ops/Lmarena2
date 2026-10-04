@@ -15,8 +15,9 @@ object TrainingImporter {
     private const val JSON_LIMIT_BYTES = 5L * 1024 * 1024
     private const val SQLITE_LIMIT_BYTES = 20L * 1024 * 1024
     private const val MAX_EXAMPLES = 5_000
+    private const val MAX_STORED_EXAMPLES = 10_000
 
-    fun import(context: Context, database: AppDatabase, uri: Uri): ImportSummary {
+    fun importFile(context: Context, database: AppDatabase, uri: Uri): ImportSummary {
         val name = displayName(context, uri).lowercase()
         val isSqlite = name.endsWith(".sqlite") || name.endsWith(".sqlite3") || name.endsWith(".db")
         return if (isSqlite) importSqlite(context, database, uri) else importJson(context, database, uri)
@@ -49,8 +50,7 @@ object TrainingImporter {
         } catch (exception: JSONException) {
             throw ImportException("JSON could not be read: ${exception.message ?: "invalid format"}")
         }
-        val inserted = database.addTrainingExamples(examples)
-        return ImportSummary(read = examples.size, added = inserted, duplicates = examples.size - inserted)
+        return persistExamples(database, examples)
     }
 
     private fun importSqlite(context: Context, database: AppDatabase, uri: Uri): ImportSummary {
@@ -104,8 +104,7 @@ object TrainingImporter {
                 }
                 result
             }
-            val inserted = database.addTrainingExamples(examples)
-            return ImportSummary(read = examples.size, added = inserted, duplicates = examples.size - inserted)
+            return persistExamples(database, examples)
         } catch (exception: ImportException) {
             throw exception
         } catch (exception: Exception) {
@@ -113,6 +112,17 @@ object TrainingImporter {
         } finally {
             tempFile.delete()
         }
+    }
+
+    private fun persistExamples(database: AppDatabase, examples: List<TrainingExample>): ImportSummary {
+        val existing = database.trainingExamples()
+        val existingSet = existing.toHashSet()
+        val newUniqueExamples = examples.distinct().count { it !in existingSet }
+        if (existing.size + newUniqueExamples > MAX_STORED_EXAMPLES) {
+            throw ImportException("Relay can store at most $MAX_STORED_EXAMPLES training examples. Clear some data and retry.")
+        }
+        val inserted = database.addTrainingExamples(examples)
+        return ImportSummary(read = examples.size, added = inserted, duplicates = examples.size - inserted)
     }
 
     private fun validatedExample(intent: String, input: String, reply: String, rowNumber: Int): TrainingExample {

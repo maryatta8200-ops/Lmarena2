@@ -4,6 +4,9 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.provider.ContactsContract
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.relaymessages.data.AppDatabase
@@ -24,23 +27,23 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
     private val database = AppDatabase.get(app)
     private val smsRepository = SmsRepository(app)
 
-    var threads: List<ThreadRecord> = emptyList()
+    var threads: List<ThreadRecord> by mutableStateOf(emptyList())
         private set
-    var contacts: List<ContactRecord> = emptyList()
+    var contacts: List<ContactRecord> by mutableStateOf(emptyList())
         private set
-    var activeMessages: List<SmsRecord> = emptyList()
+    var activeMessages: List<SmsRecord> by mutableStateOf(emptyList())
         private set
-    var autoReplyEnabled: Boolean = false
+    var autoReplyEnabled: Boolean by mutableStateOf(false)
         private set
-    var trainingCount: Int = 0
+    var trainingCount: Int by mutableStateOf(0)
         private set
-    var busy: Boolean = false
+    var busy: Boolean by mutableStateOf(false)
         private set
-    var notice: String? = null
+    var notice: String? by mutableStateOf(null)
         private set
-    var previewSuggestion: ReplySuggestion? = null
+    var previewSuggestion: ReplySuggestion? by mutableStateOf(null)
         private set
-    var refreshVersion: Int = 0
+    var refreshVersion: Int by mutableStateOf(0)
         private set
 
     fun refresh() {
@@ -171,7 +174,7 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             busy = true
             val result = withContext(Dispatchers.IO) {
-                runCatching { TrainingImporter.import(app, database, uri) }
+                runCatching { TrainingImporter.importFile(app, database, uri) }
             }
             busy = false
             result.onSuccess { summary ->

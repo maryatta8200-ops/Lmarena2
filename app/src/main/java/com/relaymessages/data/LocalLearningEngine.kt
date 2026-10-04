@@ -18,6 +18,10 @@ data class ReplySuggestion(
     val matchedInput: String
 )
 
+fun interface ReplySuggestionEngine {
+    fun suggest(message: String): ReplySuggestion?
+}
+
 /**
  * Small offline learner for private SMS use.
  *
@@ -25,7 +29,7 @@ data class ReplySuggestion(
  * The returned text is always copied from a training example: the engine never generates new
  * claims or calls a remote model. Weak matches are rejected rather than guessed.
  */
-class LocalLearningEngine(trainingExamples: List<TrainingExample>) {
+class LocalLearningEngine(trainingExamples: List<TrainingExample>) : ReplySuggestionEngine {
     private val examples = trainingExamples.filter {
         it.intent.isNotBlank() && it.input.isNotBlank() && it.reply.isNotBlank()
     }
@@ -39,7 +43,9 @@ class LocalLearningEngine(trainingExamples: List<TrainingExample>) {
     private val intentModels: Map<String, IntentModel> = trainIntentModels()
 
     /** Return a saved reply only when at least one meaningful term overlaps. */
-    fun suggest(message: String, minimumSimilarity: Double = DEFAULT_MINIMUM_SIMILARITY): ReplySuggestion? {
+    override fun suggest(message: String): ReplySuggestion? = suggest(message, DEFAULT_MINIMUM_SIMILARITY)
+
+    fun suggest(message: String, minimumSimilarity: Double): ReplySuggestion? {
         if (examples.isEmpty()) return null
         val queryTokens = tokenize(message)
         if (queryTokens.isEmpty()) return null
