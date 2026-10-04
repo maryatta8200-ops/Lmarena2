@@ -25,7 +25,6 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(
                 category TEXT NOT NULL DEFAULT '',
                 profession TEXT NOT NULL DEFAULT '',
                 purpose TEXT NOT NULL DEFAULT '',
-                whatsapp INTEGER NOT NULL DEFAULT 0,
                 auto_reply INTEGER NOT NULL DEFAULT 0,
                 last_auto_reply INTEGER NOT NULL DEFAULT 0
             )""".trimIndent()
@@ -76,7 +75,6 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(
             put("category", contact.category.trim())
             put("profession", contact.profession.trim())
             put("purpose", contact.purpose.trim())
-            put("whatsapp", if (contact.whatsappEnabled) 1 else 0)
             put("auto_reply", if (contact.autoReplyEnabled) 1 else 0)
             put("last_auto_reply", contact.lastAutoReplyAt)
         }
@@ -324,7 +322,6 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(
         category = getString(getColumnIndexOrThrow("category")).orEmpty(),
         profession = getString(getColumnIndexOrThrow("profession")).orEmpty(),
         purpose = getString(getColumnIndexOrThrow("purpose")).orEmpty(),
-        whatsappEnabled = getInt(getColumnIndexOrThrow("whatsapp")) == 1,
         autoReplyEnabled = getInt(getColumnIndexOrThrow("auto_reply")) == 1,
         lastAutoReplyAt = getLong(getColumnIndexOrThrow("last_auto_reply"))
     )
@@ -341,7 +338,7 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(
 
     companion object {
         private val CONTACT_COLUMNS = arrayOf(
-            "_id", "name", "phone", "category", "profession", "purpose", "whatsapp", "auto_reply", "last_auto_reply"
+            "_id", "name", "phone", "category", "profession", "purpose", "auto_reply", "last_auto_reply"
         )
         private val MESSAGE_COLUMNS = arrayOf(
             "_id", "phone", "body", "timestamp", "direction", "is_read", "is_auto_reply"
@@ -365,7 +362,6 @@ data class ContactRecord(
     val category: String = "",
     val profession: String = "",
     val purpose: String = "",
-    val whatsappEnabled: Boolean = false,
     val autoReplyEnabled: Boolean = false,
     val lastAutoReplyAt: Long = 0
 )

@@ -2,7 +2,16 @@
 
 Relay's first learner is deliberately small, explainable, and offline. It uses a tokenized TF-IDF similarity retriever combined with a multinomial Naive Bayes intent classifier. For a message, the engine selects a close training example and returns that example's saved reply. It does not invent a reply when the match is weak. Model fitting and inference happen in the Android app; there is no model API, telemetry endpoint, or `INTERNET` permission.
 
-This is example-based personalization, not neural-network fine-tuning. For private SMS auto-replies it is a safer starting point than an unconstrained generative model: every possible output is one of the replies the user imported or added. An optional on-device LLM can be evaluated later behind a separate adapter, but it would require a model file, substantially more storage/RAM, and its own safety evaluation. It is not required for this build.
+This is example-based personalization, not neural-network fine-tuning. For private SMS auto-replies it is a safer starting point than an unconstrained generative model: every possible output is one of the replies the user imported or added. An optional on-device LLM can be evaluated later behind the `ReplySuggestionEngine` interface, but it would require a model file, substantially more storage/RAM, and its own safety evaluation. It is not required for this build.
+
+## Local architecture
+
+1. `TrainingImporter` validates a selected JSON or SQLite file and inserts normalized examples into the app-private `training_examples` table.
+2. `LocalLearningEngine` builds the local token/intent statistics in memory and combines Naive Bayes intent likelihood with TF-IDF cosine retrieval.
+3. The Local AI tab uses the same model for a preview. The Android SMS delivery receiver may request a suggestion only after all explicit global/per-number switches and SMS-role checks pass.
+4. The auto-send path sends only a stored example reply when the score is at least 0.78, the message is not an opt-out, and the per-number cooldown has expired. Otherwise the model abstains.
+
+There is no network model provider in the app. `ReplySuggestionEngine` is the boundary for future local model experiments; do not connect it to a cloud service without a separate privacy/consent design.
 
 ## JSON format
 

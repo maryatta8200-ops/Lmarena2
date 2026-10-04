@@ -84,16 +84,16 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun sendMessage(phone: String, body: String) {
+    fun sendMessage(phone: String, body: String): Boolean {
         if (!SmsRole.isDefault(app)) {
             showNotice("Make Relay the default SMS app in Settings before sending SMS.")
-            return
+            return false
         }
         if (app.checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             showNotice("Grant SMS permission in Settings before sending.")
-            return
+            return false
         }
-        if (body.isBlank()) return
+        if (body.isBlank()) return false
         viewModelScope.launch {
             busy = true
             val result = withContext(Dispatchers.IO) {
@@ -107,6 +107,7 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
                 showNotice(exception.message ?: "The SMS could not be sent.")
             }
         }
+        return true
     }
 
     fun saveContact(contact: ContactRecord): Boolean {

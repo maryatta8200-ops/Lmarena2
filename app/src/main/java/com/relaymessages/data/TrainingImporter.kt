@@ -19,7 +19,9 @@ object TrainingImporter {
 
     fun importFile(context: Context, database: AppDatabase, uri: Uri): ImportSummary {
         val name = displayName(context, uri).lowercase()
-        val isSqlite = name.endsWith(".sqlite") || name.endsWith(".sqlite3") || name.endsWith(".db")
+        val mimeType = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase().orEmpty()
+        val isSqlite = name.endsWith(".sqlite") || name.endsWith(".sqlite3") || name.endsWith(".db") ||
+            mimeType in setOf("application/vnd.sqlite3", "application/x-sqlite3", "application/x-sqlite")
         return if (isSqlite) importSqlite(context, database, uri) else importJson(context, database, uri)
     }
 

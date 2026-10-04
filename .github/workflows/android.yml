@@ -23,7 +23,23 @@ jobs:
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v6
       - name: Verify and build debug APK
-        run: ./gradlew testDebugUnitTest lint assembleDebug
+        run: |
+          set +e
+          ./gradlew testDebugUnitTest lint assembleDebug --console=plain > build-output.log 2>&1
+          result=$?
+          cat build-output.log
+          exit "$result"
+      - name: Surface build failure details
+        if: failure()
+        shell: bash
+        run: |
+          if [[ -f build-output.log ]]; then
+            tail -n 50 build-output.log >> "$GITHUB_STEP_SUMMARY"
+            tail -n 35 build-output.log | while IFS= read -r line; do
+              escaped=${line//'%'/'%25'}
+              echo "::error::$escaped"
+            done
+          fi
       - uses: actions/upload-artifact@v7
         with:
           name: relay-debug-apk

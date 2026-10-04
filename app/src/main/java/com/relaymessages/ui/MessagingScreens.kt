@@ -1,21 +1,17 @@
 package com.relaymessages.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,7 +38,6 @@ import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.material.icons.outlined.UploadFile
@@ -419,7 +414,7 @@ fun ConversationScreen(
     messages: List<SmsRecord>,
     sending: Boolean,
     onBack: () -> Unit,
-    onSend: (String) -> Unit,
+    onSend: (String) -> Boolean,
     onWhatsApp: (String) -> Unit
 ) {
     var draft by rememberSaveable(phone) { mutableStateOf("") }
@@ -476,8 +471,7 @@ fun ConversationScreen(
             IconButton(
                 onClick = {
                     val outgoing = draft.trim()
-                    if (outgoing.isNotEmpty()) {
-                        onSend(outgoing)
+                    if (outgoing.isNotEmpty() && onSend(outgoing)) {
                         draft = ""
                     }
                 },
@@ -752,7 +746,6 @@ private fun ContactEditorDialog(
                         category = category.trim(),
                         profession = profession.trim(),
                         purpose = purpose.trim(),
-                        whatsappEnabled = initial?.whatsappEnabled ?: false,
                         autoReplyEnabled = autoReply,
                         lastAutoReplyAt = initial?.lastAutoReplyAt ?: 0
                     )

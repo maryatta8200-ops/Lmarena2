@@ -30,4 +30,4 @@ To send and receive SMS, the user must choose Relay as the default SMS app and g
 
 ## Safety defaults
 
-Automatic replies are disabled on install. Enabling them requires SMS role/permissions, the global auto-reply toggle, a contact-specific toggle, a trained match, and a strong similarity threshold. The receiver suppresses replies to opt-out words and applies a per-number cooldown. The user remains responsible for reviewing training examples and testing behavior before enabling auto-reply.
+Automatic replies are disabled on install. Enabling them requires SMS role/permissions, the global auto-reply toggle, a contact-specific toggle, a trained match with score ≥0.78, and a one-day per-number cooldown. The receiver suppresses replies to opt-out words. The user remains responsible for reviewing training examples and testing behavior before enabling auto-reply.

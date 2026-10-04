@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.relaymessages.data.ContactRecord
-import com.relaymessages.sms.SmsRole
 
 private enum class AppTab(val title: String) {
     CHATS("Chats"),
