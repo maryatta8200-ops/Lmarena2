@@ -636,7 +636,7 @@ private fun EmptyState(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
 }
 
 @Composable
-private fun ComposeRecipientDialog(
+fun ComposeRecipientDialog(
     contacts: List<ContactRecord>,
     onDismiss: () -> Unit,
     onContinue: (String) -> Unit
@@ -680,7 +680,7 @@ private fun ComposeRecipientDialog(
 }
 
 @Composable
-private fun ContactEditorDialog(
+fun ContactEditorDialog(
     initial: ContactRecord?,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)?,
