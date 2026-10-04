@@ -36,7 +36,7 @@ object TrainingImporter {
             if (rows.length() !in 1..MAX_EXAMPLES) {
                 throw ImportException("Include between 1 and $MAX_EXAMPLES examples per file.")
             }
-            buildList {
+            buildList<TrainingExample> {
                 for (index in 0 until rows.length()) {
                     val row = rows.optJSONObject(index) ?: throw ImportException("Example ${index + 1} must be an object.")
                     add(
