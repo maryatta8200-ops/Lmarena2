@@ -29,16 +29,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ImportContacts
-import androidx.compose.material.icons.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.AlertDialog
@@ -270,6 +270,15 @@ fun LocalAiScreen(
         }
 
         Card {
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Accepted file format", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("JSON: version 1 with examples containing intent, input, and reply fields.")
+                Text("SQLite: examples or training_examples table with intent, input_text, and reply_text columns.")
+                Text("Up to 5,000 rows per import and 10,000 saved total. See docs/LOCAL_AI_TRAINING.md for examples and limits.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+
+        Card {
             Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Try a suggestion", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 OutlinedTextField(
@@ -423,13 +432,13 @@ fun ConversationScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, contentDescription = "Back") }
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back") }
             Column(Modifier.weight(1f)) {
                 Text(contact?.name ?: phone, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (contact != null) Text(phone, style = MaterialTheme.typography.bodySmall)
             }
             IconButton(onClick = { onWhatsApp(phone) }) {
-                Icon(Icons.Outlined.OpenInNew, contentDescription = "Open official WhatsApp chat link")
+                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = "Open official WhatsApp chat link")
             }
         }
         HorizontalDivider()
@@ -477,7 +486,7 @@ fun ConversationScreen(
                 },
                 enabled = draft.isNotBlank() && !sending
             ) {
-                Icon(Icons.Outlined.Send, contentDescription = "Send SMS", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Send SMS", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -555,7 +564,7 @@ private fun ContactCard(
                     Text("SMS")
                 }
                 OutlinedButton(onClick = onWhatsApp, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Outlined.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
                     Text("WhatsApp")
                 }
