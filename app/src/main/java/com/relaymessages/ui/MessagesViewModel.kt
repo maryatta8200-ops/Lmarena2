@@ -145,7 +145,7 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun setAutoReplyEnabled(enabled: Boolean) {
+    fun setGlobalAutoReply(enabled: Boolean) {
         if (enabled) {
             if (!SmsRole.isDefault(app)) {
                 showNotice("Choose Relay as the default SMS app before enabling auto-reply.")

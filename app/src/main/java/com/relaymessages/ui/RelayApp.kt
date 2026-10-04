@@ -186,7 +186,7 @@ fun RelayApp(
                     suggestion = messagesViewModel.previewSuggestion,
                     onImport = messagesViewModel::importTraining,
                     onPreview = messagesViewModel::previewReply,
-                    onAutoReplyChanged = messagesViewModel::setAutoReplyEnabled,
+                    onAutoReplyChanged = messagesViewModel::setGlobalAutoReply,
                     onClear = { clearTrainingDialog = true }
                 )
                 AppTab.SETTINGS -> SettingsScreen(
