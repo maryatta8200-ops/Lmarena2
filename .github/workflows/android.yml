@@ -34,8 +34,12 @@ jobs:
         shell: bash
         run: |
           if [[ -f build-output.log ]]; then
-            tail -n 50 build-output.log >> "$GITHUB_STEP_SUMMARY"
-            tail -n 35 build-output.log | while IFS= read -r line; do
+            diagnostics=$(grep -nE '(^e: |^w: |FAILURE:|What went wrong|Execution failed|Could not|Unresolved reference|Type mismatch|Cannot infer|error:)' build-output.log | tail -n 60 || true)
+            if [[ -z "$diagnostics" ]]; then
+              diagnostics=$(tail -n 60 build-output.log)
+            fi
+            printf '%s\n' "$diagnostics" | tee -a "$GITHUB_STEP_SUMMARY"
+            printf '%s\n' "$diagnostics" | tail -n 35 | while IFS= read -r line; do
               escaped=${line//'%'/'%25'}
               echo "::error::$escaped"
             done
