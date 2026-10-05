@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localmed.tools.web-search"
+    namespace = "com.localmed.tools.websearch"
     compileSdk = 37
     defaultConfig { minSdk = 26 }
     compileOptions {
