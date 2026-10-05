@@ -1,44 +1,47 @@
-# Lmarena2
+# LocalMed Research
 
-This repository is at an early state: `main` currently tracks this `README.md` only. There is no
-master plan, decision log, documented project phase, stage gate, `CONTRIBUTING.md`,
-`SECURITY.md`, test suite, or CI workflow on the default branch yet. Related work proposed on
-other branches is unmerged and unreviewed — see
-[`docs/automation/lmarena-agent.md`](docs/automation/lmarena-agent.md#current-repository-state).
+A modular Android workspace for **offline-first medical education and research**. The app is not a clinical decision-support system. It does not ship medical model weights or a clinical knowledge corpus, and it does not substitute canned output for a working model.
 
-## Documentation
+## What is in this build
 
-| Document | Purpose |
-|---|---|
-| [`AGENTS.md`](AGENTS.md) | Operating contract for an LMArena/LMarena or other coding agent: precedence, hard boundaries, execution loop, completion report |
-| [`docs/automation/lmarena-agent.md`](docs/automation/lmarena-agent.md) | Operator guide: how to submit bounded work, preflight and validation lifecycle, least-privilege GitHub access, review requirements, known risks in pending work |
-| [`.github/ISSUE_TEMPLATE/lmarena-work-order.yml`](.github/ISSUE_TEMPLATE/lmarena-work-order.yml) | Structured work-order form used to hand a bounded task to an agent |
+- **Offline flavor:** no `INTERNET` permission. Knowledge search, encrypted local storage, model import, and ONNX inference do not depend on a service.
+- **Research flavor:** adds optional PubMed E-utilities access. It is off by default, each search requires a separate confirmation, and results stay outside local model context and local evidence.
+- **Local retrieval:** Room/SQLite FTS5 searches imported records. Imports start `UNREVIEWED`; only locally verified, currently effective, unexpired records can be retrieved.
+- **Real local inference:** ONNX Runtime Mobile plus a Rust `tokenizers` JNI bridge. CPU is the default runtime. The APK contains no model weights; a user-imported signed bundle must pass provenance, publisher-signature, SHA-256, tokenizer, tensor-shape, and smoke checks before activation.
+- **Safety and privacy:** deterministic pre-inference medical risk rules, output citation/dose-pattern checks, no long-term conversation memory, no conversation training, and AES-GCM encryption for model bundles and training-dataset files. Knowledge records and app metadata are stored in the private app database but are not separately field-encrypted. Safety rules are not clinically validated.
+- **Communication handoff:** SMS opens a draft only. WhatsApp uses the public `wa.me` click-to-chat handoff; the app does not read or synchronize private WhatsApp messages. Neither integration sends a message automatically.
 
-## LMArena automated work
+The current app supports licensed knowledge import and review, signed model import and activation, and encrypted training-dataset import. It does **not** include a transformer training backend, a medically validated model, a licensed corpus, an embedding model, or vector search. If no model is installed, it presents real local source excerpts or a clear unavailable/uncertain state; it does not fabricate an AI answer.
 
-The repository includes a provider-neutral [`AGENTS.md`](AGENTS.md) contract for an LMArena (also
-written "LMarena") coding agent. Each task must have a bounded objective, named affected files,
-traceability to a controlling document or an explicit maintainer instruction, measurable
-acceptance criteria, scope exclusions, risks, and a rollback path. The contract requires the agent
-to re-verify the live phase and gate state from the repository before every task, to stop and ask
-rather than invent a missing gate or decision, and to stop for maintainer approval before touching
-a phase or stage gate, a schema, public behavior, artifact compatibility, dependencies, golden
-outputs, benchmark or research claims, datasets, sensitive-data handling, security or network
-exposure, or an existing decision record.
+## Build debug APKs
 
-For GitHub-based handoffs, open the
-[LMArena work-order form](.github/ISSUE_TEMPLATE/lmarena-work-order.yml). It captures the
-objective, traceability, stage impact, acceptance evidence, safeguards, rollback path, and any
-authorization required.
+Prerequisites:
 
-All work happens on an isolated task branch and reaches `main` only through a pull request that a
-maintainer reviews. The agent does not push to `main`, auto-merge, force-push, rewrite history, or
-weaken CI.
+- JDK 17
+- Android SDK platform 37 and Build Tools 37.0.0
+- Android NDK 28.2.13676358
+- Rust stable and `cargo-ndk` 4.1.2
+- Gradle 9.6.0 (the wrapper pins the distribution)
 
-This repository intentionally contains **no** provider or model credentials, API keys, GitHub
-tokens, browser credentials, keystores, secrets, webhooks, autonomous scheduling, self-invoking
-runners, browser automation, background runners, or auto-merge permissions. No agent is running
-here: `AGENTS.md` is a contract that an operator's chosen agent host must load. Repository files
-are not a security boundary — enforce the real limits with GitHub branch protection, required
-status checks, least-privilege tokens, secret scanning, and human review, as described in the
-[operator guide](docs/automation/lmarena-agent.md#least-privilege-github-access).
+From the repository root:
+
+```bash
+cargo install cargo-ndk --version 4.1.2 --locked
+./scripts/build-native.sh
+./gradlew :app:assembleOfflineDebug :app:assembleResearchDebug
+```
+
+The installable, debug-signed outputs are:
+
+- `app/build/outputs/apk/offline/debug/app-offline-debug.apk`
+- `app/build/outputs/apk/research/debug/app-research-debug.apk`
+
+Only `arm64-v8a` and `x86_64` are packaged. Debug APKs are for testing, not Play Store release distribution. They are signed with the local/CI debug key and are not signed release artifacts.
+
+GitHub Actions runs Rust bridge tests, builds the native libraries, runs the Android unit tests and lint, assembles both debug APKs, verifies APK signatures and checks that only the research flavor requests `INTERNET`, then retains the APK artifacts for seven days. The workflow does not create a signed release APK or AAB.
+
+## Safety and scope
+
+This software is for educational/research exploration only, not diagnosis, prescribing, dosage decisions, or urgent care. Deterministic rules intercept some emergencies and high-risk requests but are incomplete and have not undergone clinical validation. A valid signature or successful runtime smoke test proves neither clinical safety nor medical accuracy. Publisher fingerprints must be verified through an independent channel.
+
+See [Architecture](docs/ARCHITECTURE.md), [Model bundle format](docs/MODEL_BUNDLE.md), [Knowledge import](docs/KNOWLEDGE_IMPORT.md), and [Training dataset import](docs/LOCAL_AI_TRAINING.md).
