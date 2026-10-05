@@ -17,6 +17,7 @@ if [[ -z "${ANDROID_NDK_HOME:-}" ]] || [[ ! -d "$ANDROID_NDK_HOME" ]]; then
 fi
 
 rustup target add aarch64-linux-android x86_64-linux-android
+cd "${ROOT}/native/ai-core"
 cargo ndk --platform 26 -t arm64-v8a -t x86_64 \
   -o "${ROOT}/ai/tokenizer/src/main/jniLibs" \
-  build --release --manifest-path "${ROOT}/native/ai-core/Cargo.toml"
+  build --release
