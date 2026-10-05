@@ -1,0 +1,13 @@
+plugins {
+    `java-library`
+    alias(libs.plugins.kotlin.jvm)
+}
+
+kotlin { jvmToolchain(17) }
+
+dependencies {
+    implementation(project(":ai:api"))
+    implementation(project(":knowledge:api"))
+    implementation(project(":tools:api"))
+    testImplementation(libs.junit)
+}

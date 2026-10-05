@@ -1,0 +1,33 @@
+# Gradle / Android
+.gradle/
+**/build/
+local.properties
+*.iml
+.idea/
+.cxx/
+.externalNativeBuild/
+app/build/outputs/
+
+# Rust
+/target/
+**/target/
+**/jniLibs/
+
+# Signing material and local secrets
+*.jks
+*.keystore
+keystore.properties
+.env
+
+# Local datasets, models, adapters, and runtime artifacts
+models/
+*.onnx
+*.safetensors
+*.gguf
+*.model
+*.tokenizer.json
+*.jsonl
+*.db
+*.sqlite
+*.sqlite3
+*.log

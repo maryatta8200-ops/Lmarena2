@@ -1,0 +1,54 @@
+syntax = "proto3";
+package localmed.protocol;
+option java_package = "com.localmed.protocol";
+option java_multiple_files = true;
+option java_outer_classname = "KnowledgeRecordSchema";
+
+message KnowledgeRecordProto {
+  string stable_id = 1;
+  string record_type = 2;
+  string specialty = 3;
+  string title = 4;
+  string content = 5;
+  string source = 6;
+  string source_url = 7;
+  string author_or_organization = 8;
+  int32 publication_year = 9;
+  string evidence_level = 10;
+  string review_status = 11;
+  int32 revision = 12;
+  string effective_date = 13;
+  string review_or_expiration_date = 14;
+  string license = 15;
+  string reviewer_notes = 16;
+  map<string, string> provenance = 17;
+  int64 created_at_epoch_ms = 18;
+}
+
+message CpspPakistanSynopsisProto {
+  string stable_id = 1;
+  string title = 2;
+  string research_question = 3;
+  string background = 4;
+  string rationale = 5;
+  repeated string objectives = 6;
+  string hypothesis = 7;
+  string study_design = 8;
+  string setting = 9;
+  string duration = 10;
+  string population = 11;
+  repeated string inclusion_criteria = 12;
+  repeated string exclusion_criteria = 13;
+  string sample_size_assumptions = 14;
+  string sampling_technique = 15;
+  repeated string variables = 16;
+  string data_collection_plan = 17;
+  string statistical_analysis_plan = 18;
+  string ethical_considerations = 19;
+  repeated string references = 20;
+  string supervisor = 21;
+  string institution = 22;
+  int32 revision = 23;
+  string source = 24;
+  string license = 25;
+}

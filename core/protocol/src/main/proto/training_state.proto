@@ -1,0 +1,30 @@
+syntax = "proto3";
+package localmed.protocol;
+option java_package = "com.localmed.protocol";
+option java_multiple_files = true;
+option java_outer_classname = "TrainingStateSchema";
+
+message TrainingStateProto {
+  uint32 schema_version = 1;
+  string job_id = 2;
+  string status = 3;
+  string model_id = 4;
+  string base_model_sha256 = 5;
+  string dataset_sha256 = 6;
+  string tokenizer_sha256 = 7;
+  uint64 step = 8;
+  uint64 total_steps = 9;
+  string configuration_json = 10;
+  string checkpoint_relative_path = 11;
+  int64 updated_at_epoch_ms = 12;
+}
+
+message AuditEventProto {
+  string correlation_id = 1;
+  int64 timestamp_epoch_ms = 2;
+  string module = 3;
+  string severity = 4;
+  string event_name = 5;
+  string model_version = 6;
+  map<string, string> redacted_fields = 7;
+}

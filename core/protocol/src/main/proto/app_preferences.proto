@@ -1,0 +1,15 @@
+syntax = "proto3";
+package localmed.protocol;
+option java_package = "com.localmed.protocol";
+option java_multiple_files = true;
+option java_outer_classname = "AppPreferencesSchema";
+
+message AppPreferencesProto {
+  string active_model_id = 1;
+  bool web_search_enabled = 2;
+  bool allow_long_term_memory = 3;
+  bool use_sms_drafts = 4;
+  string selected_runtime = 5;
+  int32 max_web_results = 6;
+  uint32 schema_version = 7;
+}
