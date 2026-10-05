@@ -1,6 +1,6 @@
 package com.localmed.ai.safety
 
-import com.localmed.conversation.api.ResponseState
+import com.localmed.ai.api.ResponseState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

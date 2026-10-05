@@ -22,7 +22,7 @@ import com.localmed.app.data.AppPreferencesStore
 import com.localmed.conversation.api.ConversationGateway
 import com.localmed.conversation.api.NormalizedMessage
 import com.localmed.conversation.api.OutgoingMessage
-import com.localmed.conversation.api.ResponseState
+import com.localmed.ai.api.ResponseState
 import com.localmed.core.logging.LogSeverity
 import com.localmed.core.logging.StructuredLogEvent
 import com.localmed.core.logging.StructuredLogger

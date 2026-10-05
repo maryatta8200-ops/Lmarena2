@@ -1,6 +1,6 @@
 package com.localmed.ai.safety
 
-import com.localmed.conversation.api.ResponseState
+import com.localmed.ai.api.ResponseState
 import java.util.Locale
 
 /** Deterministic pre-inference rules. This is a risk-reduction layer, not a clinical safety certification. */

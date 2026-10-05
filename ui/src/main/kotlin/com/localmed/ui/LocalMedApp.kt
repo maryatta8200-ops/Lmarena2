@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.localmed.ai.model.ModelValidationState
 import com.localmed.conversation.api.OutgoingMessage
-import com.localmed.conversation.api.ResponseState
+import com.localmed.ai.api.ResponseState
 import com.localmed.knowledge.api.KnowledgeRecord
 import com.localmed.knowledge.api.ReviewStatus
 

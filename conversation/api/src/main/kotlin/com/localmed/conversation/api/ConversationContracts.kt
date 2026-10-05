@@ -1,19 +1,11 @@
 package com.localmed.conversation.api
 
+import com.localmed.ai.api.ResponseState
 import com.localmed.knowledge.api.KnowledgeHit
 import java.time.Instant
 import java.util.UUID
 
 enum class ConversationSource { USER, SMS_DRAFT, WHATSAPP_HANDOFF }
-enum class ResponseState {
-    EDUCATIONAL,
-    PATIENT_SPECIFIC_LOW_RISK,
-    PATIENT_SPECIFIC_HIGH_RISK,
-    EMERGENCY,
-    INSUFFICIENT_INFORMATION,
-    UNCERTAIN,
-    REFUSAL_OR_REDIRECTION
-}
 
 data class NormalizedMessage(
     val sessionId: String,
