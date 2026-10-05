@@ -14,3 +14,10 @@ allprojects {
     group = "com.localmed"
     version = "0.1.0"
 }
+
+// Gradle identifies project dependencies by group, module name, and version.
+// Give same-named API modules distinct groups to avoid collapsing their identities.
+project(":ai:api") { group = "com.localmed.ai" }
+project(":knowledge:api") { group = "com.localmed.knowledge" }
+project(":conversation:api") { group = "com.localmed.conversation" }
+project(":tools:api") { group = "com.localmed.tools" }
