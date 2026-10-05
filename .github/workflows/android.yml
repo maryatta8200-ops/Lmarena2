@@ -67,17 +67,24 @@ jobs:
       - name: Test, lint, and build both debug APK flavors
         shell: bash
         run: |
-          if ./gradlew test :app:testOfflineDebugUnitTest :app:testResearchDebugUnitTest :app:lint \
-            :app:assembleOfflineDebug :app:assembleResearchDebug --console=plain > android-build.log 2>&1; then
+          set +e
+          ./gradlew test :app:testOfflineDebugUnitTest :app:testResearchDebugUnitTest :app:lint \
+            :app:assembleOfflineDebug :app:assembleResearchDebug --console=plain --stacktrace > android-build.log 2>&1
+          gradle_status=$?
+          set -e
+
+          if [[ "$gradle_status" -eq 0 ]]; then
             cat android-build.log
           else
+            echo "Gradle exited with status $gradle_status. Runner memory after failure:"
+            free -h || true
             cat android-build.log
             while IFS= read -r line; do
               escaped=${line//'%'/'%25'}
               escaped=${escaped//$'\r'/'%0D'}
               echo "::error::$escaped"
             done < <(tail -n 50 android-build.log)
-            exit 1
+            exit "$gradle_status"
           fi
 
       - name: Verify APK signatures and flavor permissions
