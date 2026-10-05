@@ -149,7 +149,8 @@ class OrtInferenceEngine(
                 ?: run { cpuSession.close(); return@withContext unsupportedBenchmark("NNAPI session could not be created.") }
             cpuSession.use { cpu ->
                 nnapiSession.use { nnapi ->
-                    val sample = tokenizer.encode("clinical evidence", minOf(8, model.contextLength)).ifEmpty { intArrayOf(0) }
+                    val encodedSample = tokenizer.encode("clinical evidence", minOf(8, model.contextLength))
+                    val sample = if (encodedSample.isEmpty()) intArrayOf(0) else encodedSample
                     val cpuWarm = runLogits(cpu, model, sample)
                     val nnapiWarm = runLogits(nnapi, model, sample)
                     if (cpuWarm.size != nnapiWarm.size || cpuWarm.isEmpty()) return@withContext unsupportedBenchmark("Provider output shapes differ.")
