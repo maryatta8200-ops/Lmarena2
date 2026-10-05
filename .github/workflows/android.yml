@@ -35,7 +35,9 @@ jobs:
         run: sdkmanager "build-tools;37.0.0"
 
       - name: Install Android NDK
-        run: sdkmanager "ndk;28.2.13676358"
+        run: |
+          sdkmanager "ndk;28.2.13676358"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -48,18 +50,35 @@ jobs:
         run: cargo test --manifest-path native/ai-core/Cargo.toml
 
       - name: Build native Android tokenizer libraries
-        run: ./scripts/build-native.sh
+        shell: bash
+        run: |
+          if ./scripts/build-native.sh > native-build.log 2>&1; then
+            cat native-build.log
+          else
+            cat native-build.log
+            while IFS= read -r line; do
+              escaped=${line//'%'/'%25'}
+              escaped=${escaped//$'\r'/'%0D'}
+              echo "::error::$escaped"
+            done < <(tail -n 40 native-build.log)
+            exit 1
+          fi
 
       - name: Test, lint, and build both debug APK flavors
-        run: >-
-          ./gradlew
-          test
-          :app:testOfflineDebugUnitTest
-          :app:testResearchDebugUnitTest
-          :app:lint
-          :app:assembleOfflineDebug
-          :app:assembleResearchDebug
-          --console=plain
+        shell: bash
+        run: |
+          if ./gradlew test :app:testOfflineDebugUnitTest :app:testResearchDebugUnitTest :app:lint \
+            :app:assembleOfflineDebug :app:assembleResearchDebug --console=plain > android-build.log 2>&1; then
+            cat android-build.log
+          else
+            cat android-build.log
+            while IFS= read -r line; do
+              escaped=${line//'%'/'%25'}
+              escaped=${escaped//$'\r'/'%0D'}
+              echo "::error::$escaped"
+            done < <(tail -n 50 android-build.log)
+            exit 1
+          fi
 
       - name: Verify APK signatures and flavor permissions
         shell: bash

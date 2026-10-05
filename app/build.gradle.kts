@@ -10,6 +10,7 @@ plugins {
 android {
     namespace = "com.localmed.app"
     compileSdk = 37
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "com.localmed.research"
