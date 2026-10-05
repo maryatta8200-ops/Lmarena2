@@ -150,7 +150,7 @@ fun LocalMedApp(
                     onImportModel = { keyId ->
                         if (keyId.isBlank()) {
                             // A bundle has to be signed by a key the user verified and trusted first.
-                            selectedTab = AppTab.MODELS
+                            selectedTab = AppTab.MODELS.ordinal
                         } else {
                             pendingModelPublisher = keyId
                             modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
