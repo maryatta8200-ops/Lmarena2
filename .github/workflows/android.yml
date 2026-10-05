@@ -79,12 +79,10 @@ jobs:
             echo "Gradle exited with status $gradle_status. Runner memory after failure:"
             free -h || true
             cat android-build.log
-            error_summary=$(grep -Ei '^(Caused by:|FAILURE:|\* What went wrong:|.*not compatible|.*not supported|.*could not|.*error:)' android-build.log | tail -n 12 | paste -sd ' | ' -)
-            if [[ -z "$error_summary" ]]; then
-              error_summary=$(tail -n 8 android-build.log | paste -sd ' | ' -)
-            fi
+            error_summary=$(tail -n 100 android-build.log)
             error_summary=${error_summary//'%'/'%25'}
             error_summary=${error_summary//$'\r'/'%0D'}
+            error_summary=${error_summary//$'\n'/'%0A'}
             echo "::error title=Gradle build failure::$error_summary"
             {
               echo '### Gradle failure details'
