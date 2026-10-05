@@ -154,7 +154,7 @@ class OrtInferenceEngine(
                     val cpuWarm = runLogits(cpu, model, sample)
                     val nnapiWarm = runLogits(nnapi, model, sample)
                     if (cpuWarm.size != nnapiWarm.size || cpuWarm.isEmpty()) return@withContext unsupportedBenchmark("Provider output shapes differ.")
-                    val maxDifference = cpuWarm.indices.maxOf { abs(cpuWarm[it] - nnapiWarm[it]) }
+                    val maxDifference = cpuWarm.indices.maxOf { abs((cpuWarm[it] - nnapiWarm[it]).toDouble()) }
                     val cpuTimes = measure(cpu, model, sample)
                     val nnapiTimes = measure(nnapi, model, sample)
                     val cpuMedian = median(cpuTimes)
